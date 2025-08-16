@@ -1,0 +1,2589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureReport Pro - Advanced Crime Reporting System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --accent: #06d6a0;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #10b981;
+            --info: #0ea5e9;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --glass: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.18);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 30%, #f093fb 60%, #f5576c 100%);
+            min-height: 100vh;
+            color: var(--dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 226, 0.2) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+            animation: backgroundFloat 20s ease-in-out infinite;
+        }
+
+        @keyframes backgroundFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-20px) rotate(1deg); }
+            66% { transform: translateY(20px) rotate(-1deg); }
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 1000;
+            padding: 1rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .navbar.scrolled {
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 0.75rem 1.25rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: white;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Mobile Menu */
+        .mobile-menu {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .mobile-menu span {
+            width: 25px;
+            height: 3px;
+            background: var(--dark);
+            margin: 3px 0;
+            transition: 0.3s;
+            border-radius: 2px;
+        }
+
+        /* Page Container */
+        .page {
+            display: none;
+            min-height: 100vh;
+            padding-top: 100px;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+            background: linear-gradient(135deg, var(--glass), rgba(255, 255, 255, 0.1));
+            backdrop-filter: blur(30px);
+            border-radius: 30px;
+            border: 1px solid var(--glass-border);
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: rotate 30s linear infinite;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, white, rgba(255, 255, 255, 0.8));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, var(--info), #0284c7);
+            color: white;
+            box-shadow: 0 10px 30px rgba(14, 165, 233, 0.3);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #d97706);
+            color: white;
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+            color: white;
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        /* Glass Cards */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            border: 1px solid var(--glass-border);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        /* Enhanced Form Styling */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Enhanced File Upload */
+        .file-upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .file-upload-area:hover {
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.02);
+        }
+
+        .file-upload-area.drag-over {
+            border-color: var(--accent);
+            background: rgba(6, 214, 160, 0.2);
+            transform: scale(1.05);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-text {
+            color: white;
+            font-size: 1.1rem;
+            margin-top: 1rem;
+            font-weight: 500;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            animation: pulse 2s infinite;
+        }
+
+        /* Advanced Image Preview */
+        .image-preview {
+            margin-top: 1rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .preview-image:hover {
+            transform: scale(1.05);
+        }
+
+        .remove-image {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .remove-image:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        /* Enhanced Reports Grid */
+        .reports-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .search-controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            flex: 1;
+            max-width: 800px;
+        }
+
+        .search-input {
+            flex: 2;
+            min-width: 250px;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .report-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .report-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
+        .report-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            background: white;
+        }
+
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .report-category {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .report-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: #d97706;
+        }
+
+        .status-investigating {
+            background: rgba(14, 165, 233, 0.2);
+            color: #0284c7;
+        }
+
+        .status-resolved {
+            background: rgba(16, 185, 129, 0.2);
+            color: #059669;
+        }
+
+        .report-date {
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        .report-priority {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .priority-high {
+            background: var(--danger);
+            animation: pulse 2s infinite;
+        }
+
+        .priority-medium {
+            background: var(--warning);
+        }
+
+        .priority-low {
+            background: var(--success);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, var(--accent), #06d6a0);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            counter-reset: number var(--number);
+            animation: countUp 2s ease-out;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        /* Modal Enhancements */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 25px;
+            padding: 2rem;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #64748b;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: #f1f5f9;
+            color: var(--danger);
+            transform: rotate(90deg);
+        }
+
+        /* Feature Cards */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+            background: white;
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 1rem;
+        }
+
+        .feature-description {
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        /* Notification System */
+        .notification {
+            position: fixed;
+            top: 100px;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 15px;
+            color: white;
+            font-weight: 500;
+            z-index: 1500;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            max-width: 350px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, var(--success), #059669);
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+        }
+
+        .notification.info {
+            background: linear-gradient(135deg, var(--info), #0284c7);
+        }
+
+        .notification.warning {
+            background: linear-gradient(135deg, var(--warning), #d97706);
+        }
+
+        /* Advanced Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .animate-slide-in-left {
+            animation: slideInLeft 0.6s ease;
+        }
+
+        .animate-slide-in-right {
+            animation: slideInRight 0.6s ease;
+        }
+
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Loading States */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: rotate 1s linear infinite;
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 4px;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* Timeline Styles */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 1rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -1.75rem;
+            top: 1.5rem;
+            width: 12px;
+            height: 12px;
+            background: var(--primary);
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px var(--primary);
+        }
+
+        /* Chat Interface */
+        .chat-container {
+            background: white;
+            border-radius: 20px;
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem;
+            font-weight: 600;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            background: #f8fafc;
+        }
+
+        .chat-input {
+            padding: 1rem;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 25px;
+            outline: none;
+        }
+
+        .chat-input button {
+            padding: 0.75rem 1.5rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 20px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+
+        .message.user {
+            background: var(--primary);
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .message.bot {
+            background: white;
+            color: var(--dark);
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            height: 8px;
+            margin: 1rem 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(135deg, var(--success), #059669);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 1024px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .mobile-menu {
+                display: flex;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .reports-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-controls {
+                flex-direction: column;
+                max-width: none;
+            }
+
+            .search-input {
+                min-width: auto;
+            }
+
+            .reports-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            .hero {
+                padding: 3rem 1rem;
+            }
+
+            .timeline {
+                padding-left: 1rem;
+            }
+
+            .timeline::before {
+                left: 0.5rem;
+            }
+
+            .timeline-item::before {
+                left: -1.25rem;
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 0.5rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .tooltip:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="logo">🛡️ SecureReport Pro</div>
+            <ul class="nav-links">
+                <li><a href="#" onclick="showPage('home')" class="active">🏠 Home</a></li>
+                <li><a href="#" onclick="showPage('report')">📝 Report</a></li>
+                <li><a href="#" onclick="showPage('dashboard')">📊 Dashboard</a></li>
+                <li><a href="#" onclick="showPage('analytics')">📈 Analytics</a></li>
+                <li><a href="#" onclick="showPage('emergency')">🚨 Emergency</a></li>
+                <li><a href="#" onclick="showPage('community')">👥 Community</a></li>
+                <li><a href="#" onclick="showPage('resources')">📚 Resources</a></li>
+                <li><a href="#" onclick="showPage('support')">💬 Support</a></li>
+                <li><a href="#" onclick="showPage('about')">ℹ️ About</a></li>
+            </ul>
+            <div class="mobile-menu" onclick="toggleMobileMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Home Page -->
+    <div id="home" class="page active">
+        <div class="container">
+            <div class="hero">
+                <div class="hero-content">
+                    <h1>🚨 Advanced Crime Reporting System</h1>
+                    <p>Report crimes safely, track investigations, connect with community, and access emergency resources - all in one comprehensive platform.</p>
+                    <div class="hero-buttons">
+                        <button class="btn btn-primary" onclick="showPage('report')">
+                            📝 Report Crime
+                        </button>
+                        <button class="btn btn-secondary" onclick="showPage('dashboard')">
+                            📊 View Dashboard
+                        </button>
+                        <button class="btn btn-success" onclick="showPage('emergency')">
+                            🚨 Emergency Help
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalReports">0</div>
+                    <div class="stat-label">Total Reports</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="thisMonth">0</div>
+                    <div class="stat-label">This Month</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="resolved">0</div>
+                    <div class="stat-label">Resolved Cases</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="activeUsers">247</div>
+                    <div class="stat-label">Active Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="responseTime">4.2</div>
+                    <div class="stat-label">Avg Response (hrs)</div>
+                </div>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card animate-slide-in-left">
+                    <div class="feature-icon">🔒</div>
+                    <h3 class="feature-title">Secure Reporting</h3>
+                    <p class="feature-description">End-to-end encryption ensures your reports remain confidential and secure.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3 class="feature-title">Mobile Optimized</h3>
+                    <p class="feature-description">Report crimes on-the-go with our fully responsive mobile interface.</p>
+                </div>
+                <div class="feature-card animate-slide-in-right">
+                    <div class="feature-icon">🌍</div>
+                    <h3 class="feature-title">GPS Integration</h3>
+                    <p class="feature-description">Automatic location detection for accurate incident mapping.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h3 class="feature-title">AI Assistance</h3>
+                    <p class="feature-description">Smart categorization and priority assignment using machine learning.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3 class="feature-title">Real-time Analytics</h3>
+                    <p class="feature-description">Live crime statistics and trend analysis for your area.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">👮</div>
+                    <h3 class="feature-title">Law Enforcement</h3>
+                    <p class="feature-description">Direct integration with local law enforcement agencies.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Page -->
+    <div id="report" class="page">
+        <div class="container">
+            <div class="glass-card">
+                <h2 style="color: white; margin-bottom: 2rem; font-size: 2rem; text-align: center;">📝 Submit Crime Report</h2>
+                
+                <div class="progress-container">
+                    <div class="progress-bar" id="formProgress" style="width: 0%;"></div>
+                </div>
+                
+                <form id="crimeForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">👤 Full Name *</label>
+                            <input type="text" name="name" class="form-input" required oninput="updateProgress()">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">📞 Phone Number *</label>
+                            <input type="tel" name="phone" class="form-input" required oninput="updateProgress()">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">📧 Email Address *</label>
+                            <input type="email" name="email" class="form-input" required oninput="updateProgress()">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">🏷️ Crime Category *</label>
+                            <select name="category" class="form-input" required onchange="updateProgress()">
+                                <option value="">Select Category</option>
+                                <option value="theft">Theft</option>
+                                <option value="assault">Assault</option>
+                                <option value="burglary">Burglary</option>
+                                <option value="vandalism">Vandalism</option>
+                                <option value="drug-related">Drug Related</option>
+                                <option value="domestic-violence">Domestic Violence</option>
+                                <option value="fraud">Fraud</option>
+                                <option value="cyber-crime">Cyber Crime</option>
+                                <option value="hate-crime">Hate Crime</option>
+                                <option value="traffic-violation">Traffic Violation</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">⚠️ Priority Level *</label>
+                            <select name="priority" class="form-input" required onchange="updateProgress()">
+                                <option value="">Select Priority</option>
+                                <option value="high">🔴 High (Immediate attention needed)</option>
+                                <option value="medium">🟡 Medium (Within 24 hours)</option>
+                                <option value="low">🟢 Low (Non-urgent)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">📅 Incident Date & Time *</label>
+                            <input type="datetime-local" name="datetime" class="form-input" required onchange="updateProgress()">
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label class="form-label">📍 Incident Location *</label>
+                            <input type="text" name="location" class="form-input" placeholder="Street address, landmark, or area" required oninput="updateProgress()">
+                            <button type="button" class="btn btn-info" style="margin-top: 0.5rem; width: auto;" onclick="getCurrentLocation()">
+                                🌍 Use Current Location
+                            </button>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label class="form-label">👥 Witnesses (Optional)</label>
+                            <textarea name="witnesses" class="form-input" rows="2" placeholder="Names and contact information of witnesses..."></textarea>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label class="form-label">📄 Incident Description *</label>
+                            <textarea name="description" class="form-input" rows="4" placeholder="Please provide detailed information about the incident..." required oninput="updateProgress()"></textarea>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label class="form-label">📷 Upload Evidence (Photos/Videos)</label>
+                            <div class="file-upload-area" onclick="document.getElementById('evidenceInput').click()" ondrop="handleFileDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                                <input type="file" id="evidenceInput" class="file-input" accept="image/*,video/*" multiple>
+                                <div class="upload-icon">📁</div>
+                                <div class="upload-text">Click to upload or drag files here</div>
+                                <small style="color: rgba(255,255,255,0.7); margin-top: 0.5rem;">Supports: JPG, PNG, MP4, MOV (Max: 10MB each)</small>
+                            </div>
+                            <div id="imagePreview" class="image-preview"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">🔐 Anonymous Report?</label>
+                            <select name="anonymous" class="form-input">
+                                <option value="no">No - Include my contact information</option>
+                                <option value="yes">Yes - Submit anonymously</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">📧 Receive Updates?</label>
+                            <select name="updates" class="form-input">
+                                <option value="yes">Yes - Send me case updates</option>
+                                <option value="no">No - Don't send updates</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 2rem; font-size: 1.1rem;">
+                        <span id="submitText">🚀 Submit Report</span>
+                        <div id="submitLoading" class="loading" style="display: none;"></div>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Page -->
+    <div id="dashboard" class="page">
+        <div class="container">
+            <div class="glass-card">
+                <div class="reports-header">
+                    <h2 style="color: white; font-size: 2rem;">📊 Crime Reports Dashboard</h2>
+                    <div class="search-controls">
+                        <input type="text" id="searchInput" class="form-input search-input" placeholder="🔍 Search reports...">
+                        <div class="filter-controls">
+                            <select id="categoryFilter" class="form-input">
+                                <option value="">All Categories</option>
+                                <option value="theft">Theft</option>
+                                <option value="assault">Assault</option>
+                                <option value="burglary">Burglary</option>
+                                <option value="vandalism">Vandalism</option>
+                                <option value="drug-related">Drug Related</option>
+                                <option value="domestic-violence">Domestic Violence</option>
+                                <option value="fraud">Fraud</option>
+                                <option value="cyber-crime">Cyber Crime</option>
+                                <option value="other">Other</option>
+                            </select>
+                            <select id="statusFilter" class="form-input">
+                                <option value="">All Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="investigating">Investigating</option>
+                                <option value="resolved">Resolved</option>
+                            </select>
+                            <select id="priorityFilter" class="form-input">
+                                <option value="">All Priorities</option>
+                                <option value="high">High</option>
+                                <option value="medium">Medium</option>
+                                <option value="low">Low</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="reportsContainer" class="reports-grid">
+                    <!-- Reports will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Page -->
+    <div id="analytics" class="page">
+        <div class="container">
+            <div class="glass-card">
+                <h2 style="color: white; margin-bottom: 2rem; font-size: 2rem; text-align: center;">📈 Crime Analytics & Trends</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">15.2%</div>
+                        <div class="stat-label">Crime Decrease (YoY)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">87%</div>
+                        <div class="stat-label">Resolution Rate</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">3.4</div>
+                        <div class="stat-label">Days Avg Resolution</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">1,247</div>
+                        <div class="stat-label">Cases This Year</div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(255, 255, 255, 0.9); border-radius: 20px; padding: 2rem; margin-top: 2rem;">
+                    <h3 style="margin-bottom: 1rem; color: var(--dark);">📊 Crime Distribution by Category</h3>
+                    <div id="chartContainer" style="height: 300px; background: #f8fafc; border-radius: 15px; display: flex; align-items: center; justify-content: center; color: #64748b;">
+                        Chart visualization would be displayed here with a proper charting library
+                    </div>
+                </div>
+
+                <div style="background: rgba(255, 255, 255, 0.9); border-radius: 20px; padding: 2rem; margin-top: 2rem;">
+                    <h3 style="margin-bottom: 1rem; color: var(--dark);">🗺️ Crime Hotspots Map</h3>
+                    <div style="height: 300px; background: #f8fafc; border-radius: 15px; display: flex; align-items: center; justify-content: center; color: #64748b;">
+                        Interactive crime map would be displayed here
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Emergency Page -->
+    <div id="emergency" class="page">
+        <div class="container">
+            <div class="glass-card">
+                <h2 style="color: white; margin-bottom: 2rem; font-size: 2rem; text-align: center;">🚨 Emergency Resources</h2>
+                
+                <div class="feature-grid">
+                    <div class="feature-card" style="background: rgba(239, 68, 68, 0.1); border-left: 4px solid var(--danger);">
+                        <div class="feature-icon">🚨</div>
+                        <h3 class="feature-title">Emergency Hotlines</h3>
+                        <div style="text-align: left;">
+                            <p><strong>Police:</strong> 911</p>
+                            <p><strong>Fire Department:</strong> 911</p>
+                            <p><strong>Medical Emergency:</strong> 911</p>
+                            <p><strong>Crisis Hotline:</strong> 1-800-273-8255</p>
+                            <p><strong>Domestic Violence:</strong> 1-800-799-7233</p>
+                        </div>
+                        <button class="btn btn-danger" style="margin-top: 1rem;" onclick="window.open('tel:911')">📞 Call 911</button>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">🏥</div>
+                        <h3 class="feature-title">Nearest Hospitals</h3>
+                        <p class="feature-description">Find the closest medical facilities and emergency rooms in your area.</p>
+                        <button class="btn btn-info" onclick="findNearestHospitals()">🗺️ Find Hospitals</button>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">👮</div>
+                        <h3 class="feature-title">Police Stations</h3>
+                        <p class="feature-description">Locate nearby police stations and their contact information.</p>
+                        <button class="btn btn-primary" onclick="findPoliceStations()">📍 Find Stations</button>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">🛡️</div>
+                        <h3 class="feature-title">Safety Tips</h3>
+                        <p class="feature-description">Essential safety guidelines and crime prevention tips.</p>
+                        <button class="btn btn-success" onclick="showPage('resources')">📚 View Tips</button>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">📱</div>
+                        <h3 class="feature-title">Panic Button</h3>
+                        <p class="feature-description">Immediate alert to emergency contacts and authorities.</p>
+                        <button class="btn btn-warning" onclick="activatePanicButton()">⚠️ Activate</button>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">📍</div>
+                        <h3 class="feature-title">Safe Locations</h3>
+                        <p class="feature-description">24/7 safe havens and public spaces with security.</p>
+                        <button class="btn btn-secondary" onclick="findSafeLocations()">🏠 Find Safe Spots</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Community Page -->
+    <div id="community" class="page">
+        <div class="container">
+            <div class="glass-card">
+                <h2 style="color: white; margin-bottom: 2rem; font-size: 2rem; text-align: center;">👥 Community Safety Hub</h2>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                    <div style="background: rgba(255, 255, 255, 0.9); border-radius: 20px; padding: 2rem;">
+                        <h3 style="margin-bottom: 1rem; color: var(--dark);">💬 Community Chat</h3>
+                        <div class="chat-container">
+                            <div class="chat-header">
+                                🏘️ Neighborhood Watch - District 5
+                            </div>
+                            <div class="chat-messages" id="chatMessages">
+                                <div class="message bot">Welcome to the community safety chat! Share safety concerns and help each other stay safe.</div>
+                                <div class="message user">Just reported a suspicious vehicle on Oak Street. License plate: ABC-123</div>
+                                <div class="message bot">Thank you for the report. Local authorities have been notified.</div>
+                            </div>
+                            <div class="chat-input">
+                                <input type="text" placeholder="Type your message..." id="chatInput" onkeypress="if(event.key==='Enter') sendMessage()">
+                                <button onclick="sendMessage()">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: rgba(255, 255, 255, 0.9); border-radius: 20px; padding: 2rem;">
+                        <h3 style="margin-bottom: 1rem; color: var(--dark);">📢 Community Alerts</h3>
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <strong>Security Alert</strong><br>
+                                <small>2 hours ago</small><br>
+                                Increased patrol in downtown area due to recent incidents.
+                            </div>
+                            <div class="timeline-item">
+                                <strong>Community Meeting</strong><br>
+                                <small>1 day ago</small><br>
+                                Monthly safety meeting scheduled for next Tuesday at 7 PM.
+                            </div>
+                            <div class="timeline-item">
+                                <strong>Crime Prevention</strong><br>
+                                <small>3 days ago</small><br>
+                                New street lights installed on Maple Avenue for better visibility.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-grid" style="margin-top: 2rem;">
+                    <div class="feature-card">
+                        <div class="feature-icon">👥</div>
+                        <h3 class="feature-title">Neighborhood Watch</h3>
+                        <p class="feature-description">Join or create a neighborhood watch group in your area.</p>
+                        <button class="btn btn-primary">🏘️ Join Group</button>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">📱</div>
+                        <h3 class="feature-title">Safety Network</h3>
+                        <p class="feature-description">Connect with neighbors and share safety information.</p>
+                        <button class="btn btn-success">🤝 Connect</button>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h3 class="feature-title">Area Statistics</h3>
+                        <p class="feature-description">View crime statistics for your specific neighborhood.</p>
+                        <button class="btn btn-info">📈 View Stats</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resources Page -->
+    <div id="resources" class="page">
+        <div class="container">
+            <div class="glass-card">
+                <h2 style="color: white; margin-bottom: 2rem; font-size: 2rem; text-align: center;">📚 Safety Resources & Education</h2>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🏠</div>
+                        <h3 class="feature-title">Home Security</h3>
+                        <p class="feature-description">Tips for securing your home against burglary and break-ins.</p>
+                        <ul style="text-align: left; margin-top: 1rem; color: #64748b;">
+                            <li>Install deadbolt locks</li>
+                            <li>Use security cameras</li>
+                            <li>Motion sensor lights</li>
+                            <li>Secure sliding doors</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">🚶</div>
+                        <h3 class="feature-title">Personal Safety</h3>
+                        <p class="feature-description">Stay safe while walking, jogging, or traveling alone.</p>
+                        <ul style="text-align: left; margin-top: 1rem; color: #64748b;">
+                            <li>Stay aware of surroundings</li>
+                            <li>Trust your instincts</li>
+                            <li>Use well-lit pathways</li>
+                            <li>Carry emergency whistle</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">💻</div>
+                        <h3 class="feature-title">Cyber Security</h3>
+                        <p class="feature-description">Protect yourself from online scams and cyber crimes.</p>
+                        <ul style="text-align: left; margin-top: 1rem; color: #64748b;">
+                            <li>Use strong passwords</li>
+                            <li>Enable two-factor auth</li>
+                            <li>Beware of phishing</li>
+                            <li>Keep software updated</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">🚗</div>
+                        <h3 class="feature-title">Vehicle Safety</h3>
+                        <p class="feature-description">Prevent car theft and ensure vehicle security.</p>
+                        <ul style="text-align: left; margin-top: 1rem; color: #64748b;">
+                            <li>Lock doors and windows</li>
+                            <li>Hide valuable items</li>
+                            <li>Park in well-lit areas</li>
+                            <li>Use anti-theft devices</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">👶</div>
+                        <h3 class="feature-title">Child Safety</h3>
+                        <p class="feature-description">Keep children safe at home, school, and in public.</p>
+                        <ul style="text-align: left; margin-top: 1rem; color: #64748b;">
+                            <li>Teach stranger danger</li>
+                            <li>Use buddy system</li>
+                            <li>Know their whereabouts</li>
+                            <li>Emergency contacts</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">🏢</div>
+                        <h3 class="feature-title">Workplace Safety</h3>
+                        <p class="feature-description">Stay safe at work and during commute.</p>
+                        <ul style="text-align: left; margin-top: 1rem; color: #64748b;">
+                            <li>Report suspicious activity</li>
+                            <li>Know evacuation routes</li>
+                            <li>Keep emergency supplies</li>
+                            <li>After-hours security</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div style="background: rgba(255, 255, 255, 0.9); border-radius: 20px; padding: 2rem; margin-top: 2rem;">
+                    <h3 style="margin-bottom: 1rem; color: var(--dark);">📖 Educational Videos & Guides</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                        <div style="background: #f8fafc; padding: 1rem; border-radius: 10px;">
+                            <strong>🎥 Self-Defense Basics</strong><br>
+                            <small style="color: #64748b;">Duration: 15 minutes</small>
+                        </div>
+                        <div style="background: #f8fafc; padding: 1rem; border-radius: 10px;">
+                            <strong>🎥 Home Security Setup</strong><br>
+                            <small style="color: #64748b;">Duration: 20 minutes</small>
+                        </div>
+                        <div style="background: #f8fafc; padding: 1rem; border-radius: 10px;">
+                            <strong>🎥 Emergency Preparedness</strong><br>
+                            <small style="color: #64748b;">Duration: 12 minutes</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Support Page -->
+    <div id="support" class="page">
+        <div class="container">
+            <div class="glass-card">
+                <h2 style="color: white; margin-bottom: 2rem; font-size: 2rem; text-align: center;">💬 Support & Help Center</h2>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                    <div style="background: rgba(255, 255, 255, 0.9); border-radius: 20px; padding: 2rem;">
+                        <h3 style="margin-bottom: 1rem; color: var(--dark);">🤖 AI Support Assistant</h3>
+                        <div class="chat-container">
+                            <div class="chat-header">
+                                🤖 SecureBot - Your AI Assistant
+                            </div>
+                            <div class="chat-messages" id="supportChatMessages">
+                                <div class="message bot">Hello! I'm SecureBot. How can I help you today? You can ask me about reporting crimes, using the platform, or general safety questions.</div>
+                            </div>
+                            <div class="chat-input">
+                                <input type="text" placeholder="Ask me anything..." id="supportChatInput" onkeypress="if(event.key==='Enter') sendSupportMessage()">
+                                <button onclick="sendSupportMessage()">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: rgba(255, 255, 255, 0.9); border-radius: 20px; padding: 2rem;">
+                        <h3 style="margin-bottom: 1rem; color: var(--dark);">❓ Frequently Asked Questions</h3>
+                        <div style="max-height: 400px; overflow-y: auto;">
+                            <div style="margin-bottom: 1rem; padding: 1rem; background: #f8fafc; border-radius: 10px;">
+                                <strong>How do I report a crime anonymously?</strong><br>
+                                <small style="color: #64748b;">Select "Yes" for anonymous reporting when submitting your report. Your personal information won't be shared.</small>
+                            </div>
+                            <div style="margin-bottom: 1rem; padding: 1rem; background: #f8fafc; border-radius: 10px;">
+                                <strong>Can I edit my report after submission?</strong><br>
+                                <small style="color: #64748b;">Reports cannot be edited once submitted for security reasons. Contact support if you need to add important information.</small>
+                            </div>
+                            <div style="margin-bottom: 1rem; padding: 1rem; background: #f8fafc; border-radius: 10px;">
+                                <strong>How long does it take to get a response?</strong><br>
+                                <small style="color: #64748b;">High priority cases receive immediate attention. Medium priority cases are typically addressed within 24 hours.</small>
+                            </div>
+                            <div style="margin-bottom: 1rem; padding: 1rem; background: #f8fafc; border-radius: 10px;">
+                                <strong>Is my data secure?</strong><br>
+                                <small style="color: #64748b;">Yes, all data is encrypted end-to-end and stored securely. We never share personal information without consent.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-grid" style="margin-top: 2rem;">
+                    <div class="feature-card">
+                        <div class="feature-icon">📞</div>
+                        <h3 class="feature-title">24/7 Support Hotline</h3>
+                        <p class="feature-description">Speak with a live support agent anytime.</p>
+                        <strong style="color: var(--primary);">1-800-SECURE-1</strong>
+                        <button class="btn btn-primary" style="margin-top: 1rem;">📞 Call Now</button>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">📧</div>
+                        <h3 class="feature-title">Email Support</h3>
+                        <p class="feature-description">Send us your questions and we'll respond within 2 hours.</p>
+                        <strong style="color: var(--primary);">support@securereport.com</strong>
+                        <button class="btn btn-info" style="margin-top: 1rem;">📧 Email Us</button>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">💬</div>
+                        <h3 class="feature-title">Live Chat</h3>
+                        <p class="feature-description">Chat with our support team in real-time.</p>
+                        <button class="btn btn-success" style="margin-top: 1rem;">💬 Start Chat</button>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">📚</div>
+                        <h3 class="feature-title">User Guide</h3>
+                        <p class="feature-description">Comprehensive guide on using all platform features.</p>
+                        <button class="btn btn-secondary" style="margin-top: 1rem;">📖 View Guide</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Page -->
+    <div id="about" class="page">
+        <div class="container">
+            <div class="glass-card animate-slide-in-left">
+                <h2 style="color: white; margin-bottom: 2rem; font-size: 2rem; text-align: center;">ℹ️ About SecureReport Pro</h2>
+                
+                <div style="background: rgba(255, 255, 255, 0.9); border-radius: 20px; padding: 2rem; margin-bottom: 2rem;">
+                    <h3 style="color: var(--dark); margin-bottom: 1rem;">🎯 Our Mission</h3>
+                    <p style="color: #64748b; font-size: 1.1rem; line-height: 1.8;">
+                        SecureReport Pro is dedicated to creating safer communities through innovative technology and collaborative crime reporting. 
+                        We believe that when citizens, law enforcement, and technology work together, we can significantly reduce crime rates and create 
+                        more secure neighborhoods for everyone.
+                    </p>
+                </div>
+                
+                <div style="background: rgba(255, 255, 255, 0.9); border-radius: 20px; padding: 2rem; margin-bottom: 2rem;">
+                    <h3 style="color: var(--dark); margin-bottom: 1rem;">⭐ Key Features</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <ul style="color: #64748b; list-style: none; padding: 0;">
+                            <li style="margin-bottom: 0.5rem;">🔒 End-to-end encryption</li>
+                            <li style="margin-bottom: 0.5rem;">📱 Mobile-responsive design</li>
+                            <li style="margin-bottom: 0.5rem;">🖼️ Multi-media evidence upload</li>
+                            <li style="margin-bottom: 0.5rem;">🔍 Advanced search & filtering</li>
+                            <li style="margin-bottom: 0.5rem;">📊 Real-time analytics</li>
+                            <li style="margin-bottom: 0.5rem;">🤖 AI-powered categorization</li>
+                        </ul>
+                        <ul style="color: #64748b; list-style: none; padding: 0;">
+                            <li style="margin-bottom: 0.5rem;">🌍 GPS location integration</li>
+                            <li style="margin-bottom: 0.5rem;">👥 Community collaboration</li>
+                            <li style="margin-bottom: 0.5rem;">🚨 Emergency assistance</li>
+                            <li style="margin-bottom: 0.5rem;">📈 Crime trend analysis</li>
+                            <li style="margin-bottom: 0.5rem;">💬 24/7 support system</li>
+                            <li style="margin-bottom: 0.5rem;">🛡️ Anonymous reporting option</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div style="background: rgba(255, 255, 255, 0.9); border-radius: 20px; padding: 2rem; margin-bottom: 2rem;">
+                    <h3 style="color: var(--dark); margin-bottom: 1rem;">👥 Our Team</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                        <div style="text-align: center; padding: 1rem;">
+                            <div style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; font-size: 2rem;">👨‍💼</div>
+                            <strong style="color: var(--dark);">John Smith</strong><br>
+                            <small style="color: #64748b;">CEO & Founder</small>
+                        </div>
+                        <div style="text-align: center; padding: 1rem;">
+                            <div style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--success), #059669); border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; font-size: 2rem;">👩‍💻</div>
+                            <strong style="color: var(--dark);">Sarah Johnson</strong><br>
+                            <small style="color: #64748b;">CTO</small>
+                        </div>
+                        <div style="text-align: center; padding: 1rem;">
+                            <div style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--warning), #d97706); border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; font-size: 2rem;">👮‍♂️</div>
+                            <strong style="color: var(--dark);">Mike Wilson</strong><br>
+                            <small style="color: #64748b;">Security Advisor</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="background: rgba(255, 255, 255, 0.9); border-radius: 20px; padding: 2rem;">
+                    <h3 style="color: var(--dark); margin-bottom: 1rem;">📞 Contact Information</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                        <div>
+                            <strong style="color: var(--primary);">📧 General Inquiries:</strong><br>
+                            <span style="color: #64748b;">info@securereportpro.com</span>
+                        </div>
+                        <div>
+                            <strong style="color: var(--primary);">🆘 Emergency Support:</strong><br>
+                            <span style="color: #64748b;">1-800-SECURE-1</span>
+                        </div>
+                        <div>
+                            <strong style="color: var(--primary);">🏢 Headquarters:</strong><br>
+                            <span style="color: #64748b;">123 Safety Street, Tech City, CA 90210</span>
+                        </div>
+                        <div>
+                            <strong style="color: var(--primary);">🕒 Business Hours:</strong><br>
+                            <span style="color: #64748b;">24/7 Support Available</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Detail Modal -->
+    <div id="reportModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Report Details</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modalBody">
+                <!-- Report details will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer"></div>
+
+    <script>
+        class AdvancedCrimeReportSystem {
+            constructor() {
+                this.reports = this.loadReports();
+                this.currentPage = 'home';
+                this.initializeEventListeners();
+                this.displayReports();
+                this.updateStats();
+                this.setupScrollEffects();
+            }
+
+            initializeEventListeners() {
+                // Form submission
+                document.getElementById('crimeForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.submitReport();
+                });
+
+                // File upload with drag & drop
+                const fileArea = document.querySelector('.file-upload-area');
+                document.getElementById('evidenceInput').addEventListener('change', (e) => {
+                    this.handleFiles(e.target.files);
+                });
+
+                // Search and filter functionality
+                document.getElementById('searchInput')?.addEventListener('input', () => {
+                    this.filterReports();
+                });
+
+                ['categoryFilter', 'statusFilter', 'priorityFilter'].forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.addEventListener('change', () => this.filterReports());
+                    }
+                });
+
+                // Navbar scroll effect
+                window.addEventListener('scroll', () => {
+                    const navbar = document.getElementById('navbar');
+                    if (window.scrollY > 50) {
+                        navbar.classList.add('scrolled');
+                    } else {
+                        navbar.classList.remove('scrolled');
+                    }
+                });
+            }
+
+            setupScrollEffects() {
+                // Intersection Observer for animations
+                const observerOptions = {
+                    threshold: 0.1,
+                    rootMargin: '0px 0px -50px 0px'
+                };
+
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.style.opacity = '1';
+                            entry.target.style.transform = 'translateY(0)';
+                        }
+                    });
+                }, observerOptions);
+
+                // Observe elements for animation
+                document.querySelectorAll('.feature-card, .stat-card, .glass-card').forEach(el => {
+                    el.style.opacity = '0';
+                    el.style.transform = 'translateY(30px)';
+                    el.style.transition = 'all 0.6s ease';
+                    observer.observe(el);
+                });
+            }
+
+            submitReport() {
+                const formData = new FormData(document.getElementById('crimeForm'));
+                const submitBtn = document.querySelector('button[type="submit"]');
+                const submitText = document.getElementById('submitText');
+                const submitLoading = document.getElementById('submitLoading');
+                
+                // Show loading state
+                submitText.style.display = 'none';
+                submitLoading.style.display = 'inline-block';
+                submitBtn.disabled = true;
+
+                const report = {
+                    id: Date.now(),
+                    name: formData.get('name'),
+                    phone: formData.get('phone'),
+                    email: formData.get('email'),
+                    category: formData.get('category'),
+                    priority: formData.get('priority') || 'medium',
+                    location: formData.get('location'),
+                    datetime: formData.get('datetime'),
+                    witnesses: formData.get('witnesses'),
+                    description: formData.get('description'),
+                    anonymous: formData.get('anonymous') === 'yes',
+                    updates: formData.get('updates') === 'yes',
+                    status: 'pending',
+                    timestamp: new Date().toISOString(),
+                    images: this.uploadedImages || []
+                };
+
+                // Simulate server processing
+                setTimeout(() => {
+                    this.saveReport(report);
+                    
+                    // Reset loading state
+                    submitText.style.display = 'inline';
+                    submitLoading.style.display = 'none';
+                    submitBtn.disabled = false;
+                    
+                    this.showNotification('Report submitted successfully! Case ID: #' + report.id, 'success');
+                    this.resetForm();
+                    
+                    // Auto-redirect to dashboard
+                    setTimeout(() => {
+                        this.showPage('dashboard');
+                    }, 2000);
+                }, 2000);
+            }
+
+            saveReport(report) {
+                this.reports.unshift(report);
+                this.saveReports();
+                this.displayReports();
+                this.updateStats();
+            }
+
+            handleFiles(files) {
+                const preview = document.getElementById('imagePreview');
+                this.uploadedImages = [];
+                preview.innerHTML = '';
+
+                Array.from(files).forEach((file, index) => {
+                    if (file.size > 10 * 1024 * 1024) {
+                        this.showNotification('File too large: ' + file.name + ' (max 10MB)', 'error');
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.uploadedImages.push({
+                            name: file.name,
+                            data: e.target.result,
+                            type: file.type
+                        });
+
+                        const previewContainer = document.createElement('div');
+                        previewContainer.style.cssText = 'position: relative; display: inline-block; margin: 0.5rem;';
+
+                        if (file.type.startsWith('image/')) {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.className = 'preview-image';
+                            img.style.cssText = 'max-width: 150px; max-height: 150px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);';
+                            previewContainer.appendChild(img);
+                        } else {
+                            const videoIcon = document.createElement('div');
+                            videoIcon.innerHTML = '🎥';
+                            videoIcon.style.cssText = 'font-size: 4rem; padding: 2rem; background: #f8fafc; border-radius: 10px; text-align: center;';
+                            previewContainer.appendChild(videoIcon);
+                        }
+
+                        const removeBtn = document.createElement('button');
+                        removeBtn.innerHTML = '×';
+                        removeBtn.className = 'remove-image';
+                        removeBtn.onclick = () => {
+                            this.uploadedImages.splice(index, 1);
+                            previewContainer.remove();
+                        };
+                        previewContainer.appendChild(removeBtn);
+
+                        preview.appendChild(previewContainer);
+                    };
+                    reader.readAsDataURL(file);
+                });
+
+                if (files.length > 0) {
+                    preview.style.display = 'block';
+                }
+            }
+
+            handleFileDrop(e) {
+                e.preventDefault();
+                e.currentTarget.classList.remove('drag-over');
+                this.handleFiles(e.dataTransfer.files);
+            }
+
+            handleDragOver(e) {
+                e.preventDefault();
+                e.currentTarget.classList.add('drag-over');
+            }
+
+            handleDragLeave(e) {
+                e.preventDefault();
+                e.currentTarget.classList.remove('drag-over');
+            }
+
+            displayReports(reportsToShow = null) {
+                const container = document.getElementById('reportsContainer');
+                if (!container) return;
+
+                const reports = reportsToShow || this.reports;
+
+                if (reports.length === 0) {
+                    container.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align: center; padding: 4rem; color: rgba(255,255,255,0.7);">
+                            <div style="font-size: 4rem; margin-bottom: 1rem;">📋</div>
+                            <h3>No reports found</h3>
+                            <p>No crime reports match your current filters.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = reports.map(report => this.createReportCard(report)).join('');
+            }
+
+            createReportCard(report) {
+                const date = new Date(report.timestamp).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                const statusClass = `status-${report.status}`;
+                const priorityClass = `priority-${report.priority}`;
+
+                return `
+                    <div class="report-card" onclick="openReportModal(${report.id})">
+                        <div class="report-priority ${priorityClass}"></div>
+                        
+                        <div class="report-header">
+                            <div>
+                                <span class="report-category">${report.category.replace('-', ' ').toUpperCase()}</span>
+                                <span class="report-status ${statusClass}">${report.status.toUpperCase()}</span>
+                            </div>
+                            <span class="report-date">${date}</span>
+                        </div>
+                        
+                        <div class="report-content">
+                            <div class="report-field">
+                                <span class="report-field-icon">👤</span>
+                                <span>${report.anonymous ? 'Anonymous Report' : report.name}</span>
+                            </div>
+                            <div class="report-field">
+                                <span class="report-field-icon">📍</span>
+                                <span>${report.location}</span>
+                            </div>
+                            <div class="report-field">
+                                <span class="report-field-icon">⚠️</span>
+                                <span class="tooltip" data-tooltip="Priority Level">${report.priority.toUpperCase()} Priority</span>
+                            </div>
+                        </div>
+
+                        <div class="report-description">
+                            <strong>Description:</strong><br>
+                            ${report.description.substring(0, 100)}${report.description.length > 100 ? '...' : ''}
+                        </div>
+
+                        ${report.images && report.images.length > 0 ? `
+                            <div style="margin: 1rem 0; font-size: 0.9rem; color: #64748b;">
+                                📎 ${report.images.length} attachment${report.images.length > 1 ? 's' : ''}
+                            </div>
+                        ` : ''}
+
+                        <div class="report-actions">
+                            <button class="btn btn-info btn-small" onclick="event.stopPropagation(); openReportModal(${report.id})">
+                                👁️ View
+                            </button>
+                            <button class="btn btn-danger btn-small" onclick="event.stopPropagation(); deleteReport(${report.id})">
+                                🗑️ Delete
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            filterReports() {
+                const searchTerm = document.getElementById('searchInput')?.value?.toLowerCase() || '';
+                const categoryFilter = document.getElementById('categoryFilter')?.value || '';
+                const statusFilter = document.getElementById('statusFilter')?.value || '';
+                const priorityFilter = document.getElementById('priorityFilter')?.value || '';
+
+                let filteredReports = this.reports;
+
+                if (searchTerm) {
+                    filteredReports = filteredReports.filter(report =>
+                        report.name.toLowerCase().includes(searchTerm) ||
+                        report.location.toLowerCase().includes(searchTerm) ||
+                        report.description.toLowerCase().includes(searchTerm) ||
+                        report.category.toLowerCase().includes(searchTerm)
+                    );
+                }
+
+                if (categoryFilter) {
+                    filteredReports = filteredReports.filter(report => report.category === categoryFilter);
+                }
+
+                if (statusFilter) {
+                    filteredReports = filteredReports.filter(report => report.status === statusFilter);
+                }
+
+                if (priorityFilter) {
+                    filteredReports = filteredReports.filter(report => report.priority === priorityFilter);
+                }
+
+                this.displayReports(filteredReports);
+            }
+
+            updateStats() {
+                const totalReports = this.reports.length;
+                const thisMonth = this.reports.filter(report => {
+                    const reportDate = new Date(report.timestamp);
+                    const now = new Date();
+                    return reportDate.getMonth() === now.getMonth() && reportDate.getFullYear() === now.getFullYear();
+                }).length;
+                const resolved = this.reports.filter(report => report.status === 'resolved').length;
+
+                this.animateCounter('totalReports', totalReports);
+                this.animateCounter('thisMonth', thisMonth);
+                this.animateCounter('resolved', resolved);
+            }
+
+            animateCounter(elementId, targetValue) {
+                const element = document.getElementById(elementId);
+                if (!element) return;
+
+                let current = 0;
+                const increment = targetValue / 30;
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= targetValue) {
+                        element.textContent = targetValue;
+                        clearInterval(timer);
+                    } else {
+                        element.textContent = Math.floor(current);
+                    }
+                }, 50);
+            }
+
+            updateProgress() {
+                const form = document.getElementById('crimeForm');
+                const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
+                let filled = 0;
+
+                inputs.forEach(input => {
+                    if (input.value.trim() !== '') filled++;
+                });
+
+                const progress = (filled / inputs.length) * 100;
+                document.getElementById('formProgress').style.width = progress + '%';
+            }
+
+            getCurrentLocation() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            const lat = position.coords.latitude;
+                            const lng = position.coords.longitude;
+                            document.querySelector('input[name="location"]').value = `Coordinates: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                            this.showNotification('Location detected successfully!', 'success');
+                        },
+                        (error) => {
+                            this.showNotification('Unable to get location: ' + error.message, 'error');
+                        }
+                    );
+                } else {
+                    this.showNotification('Geolocation is not supported by this browser', 'error');
+                }
+            }
+
+            showPage(pageId) {
+                // Hide all pages
+                document.querySelectorAll('.page').forEach(page => {
+                    page.classList.remove('active');
+                });
+
+                // Show selected page
+                document.getElementById(pageId).classList.add('active');
+
+                // Update nav links
+                document.querySelectorAll('.nav-links a').forEach(link => {
+                    link.classList.remove('active');
+                });
+                document.querySelector(`[onclick="showPage('${pageId}')"]`)?.classList.add('active');
+
+                // Update current page
+                this.currentPage = pageId;
+
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                // Trigger specific page actions
+                if (pageId === 'analytics') {
+                    this.loadAnalytics();
+                }
+            }
+
+            loadAnalytics() {
+                // Simulate loading analytics data
+                setTimeout(() => {
+                    this.showNotification('Analytics data loaded', 'info');
+                }, 1000);
+            }
+
+            showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span>${this.getNotificationIcon(type)}</span>
+                        <span>${message}</span>
+                    </div>
+                `;
+
+                document.body.appendChild(notification);
+
+                // Show notification
+                setTimeout(() => notification.classList.add('show'), 100);
+
+                // Hide notification after 5 seconds
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    setTimeout(() => notification.remove(), 300);
+                }, 5000);
+            }
+
+            getNotificationIcon(type) {
+                const icons = {
+                    success: '✅',
+                    error: '❌',
+                    warning: '⚠️',
+                    info: 'ℹ️'
+                };
+                return icons[type] || icons.info;
+            }
+
+            resetForm() {
+                document.getElementById('crimeForm').reset();
+                document.getElementById('imagePreview').innerHTML = '';
+                document.getElementById('imagePreview').style.display = 'none';
+                document.getElementById('formProgress').style.width = '0%';
+                this.uploadedImages = [];
+            }
+
+            deleteReport(reportId) {
+                if (confirm('Are you sure you want to delete this report? This action cannot be undone.')) {
+                    const reportElement = document.querySelector(`[onclick*="${reportId}"]`);
+                    if (reportElement) {
+                        reportElement.style.animation = 'fadeOut 0.3s ease forwards';
+                    }
+                    
+                    setTimeout(() => {
+                        this.reports = this.reports.filter(report => report.id !== reportId);
+                        this.saveReports();
+                        this.displayReports();
+                        this.updateStats();
+                        this.showNotification('Report deleted successfully', 'success');
+                    }, 300);
+                }
+            }
+
+            loadReports() {
+                const defaultReports = [
+                    {
+                        id: Date.now() - 1000,
+                        name: 'Jane Smith',
+                        phone: '+1-555-0123',
+                        email: 'jane.smith@email.com',
+                        category: 'theft',
+                        priority: 'medium',
+                        location: '123 Main Street, Downtown',
+                        datetime: '2024-12-10T14:30',
+                        witnesses: 'John Doe - witnessed the incident',
+                        description: 'Bicycle stolen from bike rack outside grocery store. Red mountain bike, brand Trek, approximately $800 value.',
+                        anonymous: false,
+                        updates: true,
+                        status: 'investigating',
+                        timestamp: new Date(Date.now() - 86400000).toISOString(),
+                        images: []
+                    },
+                    {
+                        id: Date.now() - 2000,
+                        name: 'Anonymous',
+                        phone: 'N/A',
+                        email: 'N/A',
+                        category: 'vandalism',
+                        priority: 'low',
+                        location: 'City Park, near playground',
+                        datetime: '2024-12-09T22:15',
+                        witnesses: '',
+                        description: 'Graffiti on playground equipment and park benches. Multiple tags with inappropriate language.',
+                        anonymous: true,
+                        updates: false,
+                        status: 'pending',
+                        timestamp: new Date(Date.now() - 172800000).toISOString(),
+                        images: []
+                    }
+                ];
+
+                const stored = JSON.parse(localStorage.getItem('crimeReports') || '[]');
+                return stored.length > 0 ? stored : defaultReports;
+            }
+
+            saveReports() {
+                localStorage.setItem('crimeReports', JSON.stringify(this.reports));
+            }
+        }
+
+        // Global functions for HTML onclick events
+        let crimeSystem;
+
+        function showPage(pageId) {
+            crimeSystem.showPage(pageId);
+        }
+
+        function deleteReport(reportId) {
+            crimeSystem.deleteReport(reportId);
+        }
+
+        function openReportModal(reportId) {
+            const report = crimeSystem.reports.find(r => r.id === reportId);
+            if (!report) return;
+
+            const modal = document.getElementById('reportModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
+
+            modalTitle.innerHTML = `🗂️ Report #${report.id}`;
+            
+            const statusClass = `status-${report.status}`;
+            const priorityClass = `priority-${report.priority}`;
+            const priorityColor = report.priority === 'high' ? '#ef4444' : report.priority === 'medium' ? '#f59e0b' : '#10b981';
+
+            modalBody.innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+                    <div>
+                        <h4 style="margin-bottom: 1rem; color: var(--primary);">👤 Reporter Information</h4>
+                        <p><strong>Name:</strong> ${report.anonymous ? 'Anonymous' : report.name}</p>
+                        <p><strong>Phone:</strong> ${report.anonymous ? 'Hidden' : report.phone}</p>
+                        <p><strong>Email:</strong> ${report.anonymous ? 'Hidden' : report.email}</p>
+                        <p><strong>Updates:</strong> ${report.updates ? 'Enabled' : 'Disabled'}</p>
+                    </div>
+                    <div>
+                        <h4 style="margin-bottom: 1rem; color: var(--primary);">📋 Case Information</h4>
+                        <p><strong>Category:</strong> <span class="report-category" style="font-size: 0.8rem;">${report.category.replace('-', ' ').toUpperCase()}</span></p>
+                        <p><strong>Priority:</strong> <span style="color: ${priorityColor}; font-weight: bold;">${report.priority.toUpperCase()}</span></p>
+                        <p><strong>Status:</strong> <span class="report-status ${statusClass}">${report.status.toUpperCase()}</span></p>
+                        <p><strong>Submitted:</strong> ${new Date(report.timestamp).toLocaleString()}</p>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 2rem;">
+                    <h4 style="margin-bottom: 1rem; color: var(--primary);">📍 Incident Details</h4>
+                    <p><strong>Location:</strong> ${report.location}</p>
+                    <p><strong>Date & Time:</strong> ${report.datetime ? new Date(report.datetime).toLocaleString() : 'Not specified'}</p>
+                    ${report.witnesses ? `<p><strong>Witnesses:</strong> ${report.witnesses}</p>` : ''}
+                </div>
+                
+                <div style="margin-bottom: 2rem;">
+                    <h4 style="margin-bottom: 1rem; color: var(--primary);">📝 Description</h4>
+                    <div style="background: #f8fafc; padding: 1.5rem; border-radius: 10px; border-left: 4px solid var(--primary);">
+                        ${report.description}
+                    </div>
+                </div>
+                
+                ${report.images && report.images.length > 0 ? `
+                    <div style="margin-bottom: 2rem;">
+                        <h4 style="margin-bottom: 1rem; color: var(--primary);">📎 Evidence</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                            ${report.images.map((img, index) => `
+                                <div style="text-align: center;">
+                                    ${img.type.startsWith('image/') ? 
+                                        `<img src="${img.data}" style="max-width: 100%; height: 150px; object-fit: cover; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);" alt="Evidence ${index + 1}">` :
+                                        `<div style="background: #f8fafc; padding: 2rem; border-radius: 10px; font-size: 3rem;">🎥</div>`
+                                    }
+                                    <p style="font-size: 0.9rem; color: #64748b; margin-top: 0.5rem;">${img.name}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+                
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+                    <button class="btn btn-info" onclick="updateReportStatus(${report.id})">Update Status</button>
+                    <button class="btn btn-danger" onclick="deleteReport(${report.id}); closeModal();">Delete Report</button>
+                </div>
+            `;
+
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('reportModal').classList.remove('active');
+        }
+
+        function updateReportStatus(reportId) {
+            const report = crimeSystem.reports.find(r => r.id === reportId);
+            if (!report) return;
+
+            const statuses = ['pending', 'investigating', 'resolved'];
+            const currentIndex = statuses.indexOf(report.status);
+            const nextIndex = (currentIndex + 1) % statuses.length;
+            
+            report.status = statuses[nextIndex];
+            crimeSystem.saveReports();
+            crimeSystem.displayReports();
+            crimeSystem.updateStats();
+            
+            crimeSystem.showNotification(`Report status updated to: ${report.status}`, 'success');
+            closeModal();
+        }
+
+        function updateProgress() {
+            crimeSystem.updateProgress();
+        }
+
+        function getCurrentLocation() {
+            crimeSystem.getCurrentLocation();
+        }
+
+        function handleFileDrop(event) {
+            crimeSystem.handleFileDrop(event);
+        }
+
+        function handleDragOver(event) {
+            crimeSystem.handleDragOver(event);
+        }
+
+        function handleDragLeave(event) {
+            crimeSystem.handleDragLeave(event);
+        }
+
+        function findNearestHospitals() {
+            crimeSystem.showNotification('Opening maps to find nearest hospitals...', 'info');
+            // In a real app, this would integrate with maps API
+        }
+
+        function findPoliceStations() {
+            crimeSystem.showNotification('Locating nearby police stations...', 'info');
+            // In a real app, this would integrate with maps API
+        }
+
+        function findSafeLocations() {
+            crimeSystem.showNotification('Finding safe locations in your area...', 'info');
+            // In a real app, this would integrate with safety database
+        }
+
+        function activatePanicButton() {
+            if (confirm('⚠️ EMERGENCY ALERT ⚠️\n\nThis will immediately notify:\n• Emergency contacts\n• Local authorities\n• Security services\n\nProceed with panic alert?')) {
+                crimeSystem.showNotification('🚨 PANIC ALERT ACTIVATED! Emergency services have been notified.', 'warning');
+                // In a real app, this would trigger actual emergency protocols
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const messagesContainer = document.getElementById('chatMessages');
+            
+            if (input.value.trim()) {
+                const userMessage = document.createElement('div');
+                userMessage.className = 'message user';
+                userMessage.textContent = input.value;
+                messagesContainer.appendChild(userMessage);
+                
+                // Auto-scroll to bottom
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                
+                // Simulate bot response
+                setTimeout(() => {
+                    const botMessage = document.createElement('div');
+                    botMessage.className = 'message bot';
+                    botMessage.textContent = 'Thank you for your message. Community moderators will review and respond soon.';
+                    messagesContainer.appendChild(botMessage);
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }, 1000);
+                
+                input.value = '';
+            }
+        }
+
+        function sendSupportMessage() {
+            const input = document.getElementById('supportChatInput');
+            const messagesContainer = document.getElementById('supportChatMessages');
+            
+            if (input.value.trim()) {
+                const userMessage = document.createElement('div');
+                userMessage.className = 'message user';
+                userMessage.textContent = input.value;
+                messagesContainer.appendChild(userMessage);
+                
+                // Auto-scroll to bottom
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                
+                // Simulate AI response
+                setTimeout(() => {
+                    const responses = [
+                        "I understand your concern. Let me help you with that. For immediate assistance with reports, please check our FAQ section.",
+                        "That's a great question! You can find detailed information about this in our Resources section.",
+                        "For urgent matters, please contact our 24/7 support hotline at 1-800-SECURE-1.",
+                        "I can help you navigate the platform. What specific feature would you like assistance with?",
+                        "Thank you for reaching out. Your safety and security are our top priorities."
+                    ];
+                    
+                    const botMessage = document.createElement('div');
+                    botMessage.className = 'message bot';
+                    botMessage.textContent = responses[Math.floor(Math.random() * responses.length)];
+                    messagesContainer.appendChild(botMessage);
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }, 1500);
+                
+                input.value = '';
+            }
+        }
+
+        function toggleMobileMenu() {
+            // Mobile menu functionality would be implemented here
+            crimeSystem.showNotification('Mobile menu - feature coming soon!', 'info');
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            crimeSystem = new AdvancedCrimeReportSystem();
+            
+            // Add some loading animation
+            document.body.style.opacity = '0';
+            setTimeout(() => {
+                document.body.style.transition = 'opacity 0.5s ease';
+                document.body.style.opacity = '1';
+            }, 100);
+        });
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('reportModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(event) {
+            // Escape key to close modal
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+            
+            // Ctrl+N for new report
+            if (event.ctrlKey && event.key === 'n') {
+                event.preventDefault();
+                showPage('report');
+            }
+            
+            // Ctrl+D for dashboard
+            if (event.ctrlKey && event.key === 'd') {
+                event.preventDefault();
+                showPage('dashboard');
+            }
+        });
+    </script>
+</body>
+</html>

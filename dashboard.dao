@@ -1,0 +1,343 @@
+
+// LoginServlet.java
+package com.crime.servlet;
+
+import com.crime.dao.UserDAO;
+import com.crime.model.User;
+import com.crime.util.PasswordUtil;
+import com.crime.util.ValidationUtil;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.sql.SQLException;
+
+@WebServlet("/login")
+public class LoginServlet extends HttpServlet {
+    
+    private UserDAO userDAO = new UserDAO();
+    
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        request.getRequestDispatcher("/WEB-INF/jsp/login.jsp").forward(request, response);
+    }
+    
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        
+        String username = ValidationUtil.sanitizeInput(request.getParameter("username"));
+        String password = request.getParameter("password");
+        
+        // Validation
+        if (!ValidationUtil.isNotEmpty(username) || !ValidationUtil.isNotEmpty(password)) {
+            request.setAttribute("error", "Username and password are required");
+            request.getRequestDispatcher("/WEB-INF/jsp/login.jsp").forward(request, response);
+            return;
+        }
+        
+        try {
+            String hashedPassword = PasswordUtil.hashPassword(password);
+            User user = userDAO.authenticateUser(username, hashedPassword);
+            
+            if (user != null) {
+                HttpSession session = request.getSession();
+                session.setAttribute("user", user);
+                session.setAttribute("userId", user.getUserId());
+                session.setAttribute("username", user.getUsername());
+                session.setAttribute("userRole", user.getRoleName());
+                session.setAttribute("fullName", user.getFullName());
+                
+                // Redirect based on role
+                String dashboardUrl = getDashboardUrl(user.getRoleName());
+                response.sendRedirect(request.getContextPath() + dashboardUrl);
+            } else {
+                request.setAttribute("error", "Invalid username or password");
+                request.getRequestDispatcher("/WEB-INF/jsp/login.jsp").forward(request, response);
+            }
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Database error occurred. Please try again.");
+            request.getRequestDispatcher("/WEB-INF/jsp/login.jsp").forward(request, response);
+        }
+    }
+    
+    private String getDashboardUrl(String roleName) {
+        switch (roleName.toUpperCase()) {
+            case "ADMIN":
+                return "/dashboard?role=admin";
+            case "POLICE":
+                return "/dashboard?role=police";
+            case "CITIZEN":
+            default:
+                return "/dashboard?role=citizen";
+        }
+    }
+}
+
+// RegisterServlet.java
+package com.crime.servlet;
+
+import com.crime.dao.UserDAO;
+import com.crime.model.User;
+import com.crime.util.PasswordUtil;
+import com.crime.util.ValidationUtil;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.sql.SQLException;
+
+@WebServlet("/register")
+public class RegisterServlet extends HttpServlet {
+    
+    private UserDAO userDAO = new UserDAO();
+    
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        request.getRequestDispatcher("/WEB-INF/jsp/register.jsp").forward(request, response);
+    }
+    
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        
+        String username = ValidationUtil.sanitizeInput(request.getParameter("username"));
+        String email = ValidationUtil.sanitizeInput(request.getParameter("email"));
+        String password = request.getParameter("password");
+        String confirmPassword = request.getParameter("confirmPassword");
+        String fullName = ValidationUtil.sanitizeInput(request.getParameter("fullName"));
+        String phone = ValidationUtil.sanitizeInput(request.getParameter("phone"));
+        String address = ValidationUtil.sanitizeInput(request.getParameter("address"));
+        
+        // Validation
+        StringBuilder errors = new StringBuilder();
+        
+        if (!ValidationUtil.isValidUsername(username)) {
+            errors.append("Username must be 3-20 characters and contain only letters, numbers, and underscores. ");
+        }
+        
+        if (!ValidationUtil.isValidEmail(email)) {
+            errors.append("Please enter a valid email address. ");
+        }
+        
+        if (!ValidationUtil.isValidPassword(password)) {
+            errors.append("Password must be between 6-50 characters. ");
+        }
+        
+        if (!password.equals(confirmPassword)) {
+            errors.append("Passwords do not match. ");
+        }
+        
+        if (!ValidationUtil.isValidName(fullName)) {
+            errors.append("Full name must be between 2-100 characters. ");
+        }
+        
+        if (!ValidationUtil.isValidPhone(phone)) {
+            errors.append("Phone number must be exactly 10 digits. ");
+        }
+        
+        if (!ValidationUtil.isNotEmpty(address)) {
+            errors.append("Address is required. ");
+        }
+        
+        if (errors.length() > 0) {
+            request.setAttribute("error", errors.toString());
+            request.getRequestDispatcher("/WEB-INF/jsp/register.jsp").forward(request, response);
+            return;
+        }
+        
+        try {
+            // Check if username or email already exists
+            if (userDAO.isUsernameExists(username)) {
+                request.setAttribute("error", "Username already exists. Please choose a different username.");
+                request.getRequestDispatcher("/WEB-INF/jsp/register.jsp").forward(request, response);
+                return;
+            }
+            
+            if (userDAO.isEmailExists(email)) {
+                request.setAttribute("error", "Email already registered. Please use a different email address.");
+                request.getRequestDispatcher("/WEB-INF/jsp/register.jsp").forward(request, response);
+                return;
+            }
+            
+            // Create new user
+            User newUser = new User();
+            newUser.setUsername(username);
+            newUser.setEmail(email);
+            newUser.setPasswordHash(PasswordUtil.hashPassword(password));
+            newUser.setFullName(fullName);
+            newUser.setPhone(phone);
+            newUser.setAddress(address);
+            newUser.setRoleId(1); // Default role: CITIZEN
+            
+            boolean success = userDAO.createUser(newUser);
+            
+            if (success) {
+                request.setAttribute("success", "Registration successful! You can now login with your credentials.");
+                request.getRequestDispatcher("/WEB-INF/jsp/login.jsp").forward(request, response);
+            } else {
+                request.setAttribute("error", "Registration failed. Please try again.");
+                request.getRequestDispatcher("/WEB-INF/jsp/register.jsp").forward(request, response);
+            }
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Database error occurred. Please try again.");
+            request.getRequestDispatcher("/WEB-INF/jsp/register.jsp").forward(request, response);
+        }
+    }
+}
+
+// ComplaintServlet.java
+package com.crime.servlet;
+
+import com.crime.dao.ComplaintDAO;
+import com.crime.dao.ComplaintUpdateDAO;
+import com.crime.dao.CategoryDAO;
+import com.crime.dao.UserDAO;
+import com.crime.model.Complaint;
+import com.crime.model.ComplaintUpdate;
+import com.crime.model.Category;
+import com.crime.model.User;
+import com.crime.util.ValidationUtil;
+import com.crime.util.EmailUtil;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.sql.Date;
+import java.sql.SQLException;
+import java.util.List;
+
+@WebServlet("/complaint")
+public class ComplaintServlet extends HttpServlet {
+    
+    private ComplaintDAO complaintDAO = new ComplaintDAO();
+    private ComplaintUpdateDAO updateDAO = new ComplaintUpdateDAO();
+    private CategoryDAO categoryDAO = new CategoryDAO();
+    private UserDAO userDAO = new UserDAO();
+    
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("user");
+        
+        if (user == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+        
+        String action = request.getParameter("action");
+        
+        try {
+            if ("file".equals(action)) {
+                List<Category> categories = categoryDAO.getAllCategories();
+                request.setAttribute("categories", categories);
+                request.getRequestDispatcher("/WEB-INF/jsp/file-complaint.jsp").forward(request, response);
+                
+            } else if ("view".equals(action)) {
+                int complaintId = Integer.parseInt(request.getParameter("id"));
+                Complaint complaint = complaintDAO.getComplaintById(complaintId);
+                
+                if (complaint != null) {
+                    // Check if user has permission to view this complaint
+                    if (hasViewPermission(user, complaint)) {
+                        List<ComplaintUpdate> updates = updateDAO.getUpdatesByComplaint(complaintId);
+                        request.setAttribute("complaint", complaint);
+                        request.setAttribute("updates", updates);
+                        request.getRequestDispatcher("/WEB-INF/jsp/view-complaint.jsp").forward(request, response);
+                    } else {
+                        request.setAttribute("error", "You don't have permission to view this complaint");
+                        response.sendRedirect(request.getContextPath() + "/dashboard?role=" + user.getRoleName().toLowerCase());
+                    }
+                } else {
+                    request.setAttribute("error", "Complaint not found");
+                    response.sendRedirect(request.getContextPath() + "/dashboard?role=" + user.getRoleName().toLowerCase());
+                }
+            }
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Database error occurred");
+            response.sendRedirect(request.getContextPath() + "/dashboard?role=" + user.getRoleName().toLowerCase());
+        } catch (NumberFormatException e) {
+            request.setAttribute("error", "Invalid complaint ID");
+            response.sendRedirect(request.getContextPath() + "/dashboard?role=" + user.getRoleName().toLowerCase());
+        }
+    }
+    
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("user");
+        
+        if (user == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+        
+        String action = request.getParameter("action");
+        
+        try {
+            if ("file".equals(action)) {
+                handleFileComplaint(request, response, user);
+            } else if ("update".equals(action)) {
+                handleUpdateComplaint(request, response, user);
+            }
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Database error occurred");
+            response.sendRedirect(request.getContextPath() + "/dashboard?role=" + user.getRoleName().toLowerCase());
+        }
+    }
+    
+    private void handleFileComplaint(HttpServletRequest request, HttpServletResponse response, User user) 
+            throws SQLException, ServletException, IOException {
+        
+        String title = ValidationUtil.sanitizeInput(request.getParameter("title"));
+        String description = ValidationUtil.sanitizeInput(request.getParameter("description"));
+        String location = ValidationUtil.sanitizeInput(request.getParameter("location"));
+        String incidentDateStr = request.getParameter("incidentDate");
+        String priority = request.getParameter("priority");
+        String categoryIdStr = request.getParameter("categoryId");
+        
+        // Validation
+        StringBuilder errors = new StringBuilder();
+        
+        if (!ValidationUtil.isNotEmpty(title)) {
+            errors.append("Title is required. ");
+        }
+        
+        if (!ValidationUtil.isNotEmpty(description)) {
+            errors.append("Description is required. ");
+        }
+        
+        if (!ValidationUtil.isNotEmpty(location)) {
+            errors.append("Location is required. ");
+        }
+        
+        if (!ValidationUtil.isNotEmpty(incidentDateStr)) {
+            errors.append("Incident date is required. ");
+        }
+        
+            }}
